@@ -72,7 +72,16 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 		Comparable<? super K> k = (Comparable<? super K>) target;
 		
 		// the actual search
-        // TODO: Fill this in.
+		Node node = root;
+		while (node!=null) {
+			if (k.compareTo(node.key) <0) {
+				node = node.left;
+			} else if (k.compareTo(node.key) > 0) {
+				node = node.right;
+			} else {
+				return node;
+			}
+		}
         return null;
 	}
 
@@ -92,8 +101,14 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 
 	@Override
 	public boolean containsValue(Object target) {
+		for (V value: values()) {
+			if (equals(value, target)) {
+				return true;
+			}
+		}
 		return false;
 	}
+	
 
 	@Override
 	public Set<Map.Entry<K, V>> entrySet() {
@@ -117,10 +132,17 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 	@Override
 	public Set<K> keySet() {
 		Set<K> set = new LinkedHashSet<K>();
-        // TODO: Fill this in.
+		keySetHelper(root, set);
 		return set;
 	}
 
+	private void keySetHelper(Node node, Set<K> set){
+		if (node == null) return;
+		keySetHelper(node.left, set);
+		set.add(node.key);
+		keySetHelper(node.right,set);
+	}
+	
 	@Override
 	public V put(K key, V value) {
 		if (key == null) {
@@ -135,8 +157,40 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 	}
 
 	private V putHelper(Node node, K key, V value) {
-        // TODO: Fill this in.
-        return null;
+		@SuppressWarnings("unchecked")
+		Comparable<? super K> k = (Comparable<? super K>) key;
+		int cmp = k.compareTo(node.key);
+		
+		if (findNode(key) != null) {
+			findNode(key).value = value;
+			return findNode(key).value;
+		}
+		
+		else {
+		
+		if (k.compareTo(node.key) < 0) {
+			if (node.left == null) {
+				node.left = new Node(key, value);
+				size++;
+				return null;
+			} else {
+					return putHelper(node.left, key, value);
+			}
+		}
+		if (k.compareTo(node.key) > 0) {
+			if (node.right == null) {
+				node.right = new Node(key, value);
+				size++;
+				return null;
+			} else {
+					return putHelper(node.right, key, value);
+			}
+		}
+		
+		}
+		V valPrev = node.value;
+		node.value = value;
+		return valPrev;
 	}
 
 	@Override
